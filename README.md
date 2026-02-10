@@ -75,6 +75,6 @@ Run the development server:
 python manage.py runserver
 Then open http://127.0.0.1:8000/clients/ in your browser and log in with your superuser account.
 ```
-Project Status
+## Project Status
 This project is under active development as part of a personal learning and portfolio journey.
 New features are added incrementally with a focus on clean code, small commits, and clear documentation.
