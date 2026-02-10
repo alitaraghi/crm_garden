@@ -11,20 +11,32 @@
     {% csrf_token %}
     {{ form.non_field_errors }}
 
-    {% for field in form %}
-      <div class="mb-3">
-        <label class="form-label" for="{{ field.id_for_label }}">
-          {{ field.label }}
-        </label>
-        {{ field }}
-        {% if field.help_text %}
-          <div class="form-text">{{ field.help_text }}</div>
-        {% endif %}
-        {% for error in field.errors %}
-          <div class="text-danger small">{{ error }}</div>
-        {% endfor %}
-      </div>
+{% for field in form %}
+  <div class="mb-3">
+    <label class="form-label" for="{{ field.id_for_label }}">
+      {{ field.label }}
+    </label>
+
+    {% if field.name == "start_date" or field.name == "due_date" %}
+      <input
+        type="date"
+        name="{{ field.html_name }}"
+        id="{{ field.id_for_label }}"
+        value="{{ field.value|default_if_none:'' }}"
+        class="form-control"
+      />
+    {% else %}
+      {{ field }}
+    {% endif %}
+
+    {% if field.help_text %}
+      <div class="form-text">{{ field.help_text }}</div>
+    {% endif %}
+    {% for error in field.errors %}
+      <div class="text-danger small">{{ error }}</div>
     {% endfor %}
+  </div>
+{% endfor %}
 
     <button type="submit" class="btn btn-primary">Save</button>
     <a href="{% url 'crm:client_detail' client.pk %}" class="btn btn-secondary">
