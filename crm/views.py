@@ -106,3 +106,31 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy("crm:client_detail", kwargs={"pk": self.client.pk})
+    
+class ProjectDetailView(OwnerQuerysetMixin, DetailView):
+    """Show details for a single project."""
+
+    model = Project
+    template_name = "crm/project_detail.html"
+    context_object_name = "project"
+
+
+class ProjectUpdateView(OwnerQuerysetMixin, UpdateView):
+    """Update an existing project."""
+
+    model = Project
+    template_name = "crm/project_form.html"
+    context_object_name = "project"
+    fields = ["name", "description", "status", "start_date", "due_date"]
+
+    def get_success_url(self):
+        return reverse_lazy("crm:project_detail", kwargs={"pk": self.object.pk})
+
+
+class ProjectDeleteView(OwnerQuerysetMixin, DeleteView):
+    """Delete an existing project."""
+
+    model = Project
+    template_name = "crm/project_confirm_delete.html"
+    success_url = reverse_lazy("crm:project_list")
+

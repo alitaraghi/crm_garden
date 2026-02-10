@@ -38,9 +38,17 @@
   </div>
 {% endfor %}
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a href="{% url 'crm:client_detail' client.pk %}" class="btn btn-secondary">
-      Cancel
-    </a>
+<button type="submit" class="btn btn-primary">Save</button>
+
+{% if client %}
+  <a href="{% url 'crm:client_detail' client.pk %}" class="btn btn-secondary">
+    Cancel
+  </a>
+{% else %}
+  <a href="{% url 'crm:project_detail' project.pk %}" class="btn btn-secondary">
+    Cancel
+  </a>
+{% endif %}
+
   </form>
 {% endblock %}
