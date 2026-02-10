@@ -19,17 +19,30 @@
             <th>Email</th>
             <th>Phone</th>
             <th>Created</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {% for client in clients %}
             <tr>
-              <td>{{ client.name }}</td>
+              <td>
+                <a href="{% url 'crm:client_detail' client.pk %}">
+                  {{ client.name }}
+                </a>
+              </td>
               <td>{{ client.company|default:"-" }}</td>
               <td>{{ client.get_status_display }}</td>
               <td>{{ client.email|default:"-" }}</td>
               <td>{{ client.phone|default:"-" }}</td>
               <td>{{ client.created_at|date:"Y-m-d" }}</td>
+              <td class="text-end">
+                <a
+                  href="{% url 'crm:client_update' client.pk %}"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  Edit
+                </a>
+              </td>
             </tr>
           {% endfor %}
         </tbody>
