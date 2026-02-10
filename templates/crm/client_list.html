@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Clients | CRM Garden{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Clients</h1>
+    <a href="{% url 'crm:client_create' %}" class="btn btn-primary">Add client</a>
+  </div>
+
+  {% if clients %}
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Company</th>
+            <th>Status</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for client in clients %}
+            <tr>
+              <td>{{ client.name }}</td>
+              <td>{{ client.company|default:"-" }}</td>
+              <td>{{ client.get_status_display }}</td>
+              <td>{{ client.email|default:"-" }}</td>
+              <td>{{ client.phone|default:"-" }}</td>
+              <td>{{ client.created_at|date:"Y-m-d" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>No clients yet. Start by adding your first client.</p>
+  {% endif %}
+{% endblock %}
