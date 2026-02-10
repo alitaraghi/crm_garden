@@ -34,4 +34,45 @@
       </p>
     </div>
   </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="h5 mb-0">Projects</h2>
+    <a
+      href="{% url 'crm:project_create_for_client' client_pk=client.pk %}"
+      class="btn btn-sm btn-primary"
+    >
+      Add project
+    </a>
+  </div>
+
+  {% if client.projects.all %}
+    {% if client.projects.count %}
+      <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Start</th>
+              <th>Due</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for project in client.projects.all %}
+              <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.get_status_display }}</td>
+                <td>{{ project.start_date|date:"Y-m-d"|default:"-" }}</td>
+                <td>{{ project.due_date|date:"Y-m-d"|default:"-" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted">No projects for this client yet.</p>
+    {% endif %}
+  {% else %}
+    <p class="text-muted">No projects for this client yet.</p>
+  {% endif %}
 {% endblock %}
