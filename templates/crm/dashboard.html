@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | CRM Garden{% endblock %}
+
+{% block content %}
+  <h1 class="h3 mb-4">Dashboard</h1>
+
+  <div class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="card border-primary h-100">
+        <div class="card-body">
+          <h2 class="h6 text-muted text-uppercase mb-2">Clients</h2>
+          <p class="display-6 mb-0">{{ client_count }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card border-success h-100">
+        <div class="card-body">
+          <h2 class="h6 text-muted text-uppercase mb-2">Projects by status</h2>
+          {% if project_counts %}
+            <ul class="list-unstyled mb-0">
+              {% for item in project_counts %}
+                <li>
+                  <strong>{{ item.status }}</strong>:
+                  {{ item.total }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-0 text-muted">No projects yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card border-info h-100">
+        <div class="card-body">
+          <h2 class="h6 text-muted text-uppercase mb-2">Tasks by status</h2>
+          {% if task_counts %}
+            <ul class="list-unstyled mb-0">
+              {% for item in task_counts %}
+                <li>
+                  <strong>{{ item.status }}</strong>:
+                  {{ item.total }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mb-0 text-muted">No tasks yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="h5 mb-3">
+    Tasks due by {{ today|date:"Y-m-d" }}
+  </h2>
+
+  {% if overdue_tasks %}
+    <div class="table-responsive">
+      <table class="table table-sm table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Project</th>
+            <th>Client</th>
+            <th>Status</th>
+            <th>Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in overdue_tasks %}
+            <tr>
+              <td>
+                <a href="{% url 'crm:task_detail' task.pk %}">
+                  {{ task.title }}
+                </a>
+              </td>
+              <td>
+                <a href="{% url 'crm:project_detail' task.project.pk %}">
+                  {{ task.project.name }}
+                </a>
+              </td>
+              <td>{{ task.project.client.name }}</td>
+              <td>{{ task.get_status_display }}</td>
+              <td>{{ task.due_date|date:"Y-m-d"|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-muted">
+      No overdue or due-today tasks. Looks like you are up to date!
+    </p>
+  {% endif %}
+{% endblock %}

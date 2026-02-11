@@ -3,6 +3,8 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.shortcuts import get_object_or_404
 from .models import Client, Project, Task
+from django.db.models import Count
+from datetime import date
 
 
 class ClientListView(LoginRequiredMixin, ListView):
@@ -40,6 +42,55 @@ class OwnerQuerysetMixin(LoginRequiredMixin):
         qs = super().get_queryset()
         return qs.filter(owner=self.request.user)
 
+class DashboardView(LoginRequiredMixin, ListView):
+    """Simple dashboard showing high-level stats for the current user."""
+
+    model = Task
+    template_name = "crm/dashboard.html"
+    context_object_name = "overdue_tasks"
+
+    def get_queryset(self):
+        today = date.today()
+        return (
+            Task.objects.filter(
+                owner=self.request.user,
+                due_date__lte=today,
+            )
+            .exclude(status=Task.STATUS_DONE)
+            .select_related("project", "project__client")
+            .order_by("due_date")
+        )
+
+    def get_context_data(self, **kwargs):
+        from .models import Client, Project  # local import to avoid circular issues if any
+
+        context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+
+        # Client count
+        client_count = Client.objects.filter(owner=user).count()
+
+        # Project counts by status
+        project_counts = (
+            Project.objects.filter(owner=user)
+            .values("status")
+            .annotate(total=Count("id"))
+        )
+
+        # Task counts by status
+        task_counts = (
+            Task.objects.filter(owner=user)
+            .values("status")
+            .annotate(total=Count("id"))
+        )
+
+        context["client_count"] = client_count
+        context["project_counts"] = project_counts
+        context["task_counts"] = task_counts
+        context["today"] = date.today()
+
+        return context
 
 class ClientDetailView(OwnerQuerysetMixin, DetailView):
     """Show details for a single client."""
