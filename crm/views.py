@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.shortcuts import get_object_or_404
-from .models import Client, Project
+from .models import Client, Project, Task
 
 
 class ClientListView(LoginRequiredMixin, ListView):
@@ -134,3 +134,45 @@ class ProjectDeleteView(OwnerQuerysetMixin, DeleteView):
     template_name = "crm/project_confirm_delete.html"
     success_url = reverse_lazy("crm:project_list")
 
+class TaskListView(OwnerQuerysetMixin, ListView):
+    """List all tasks belonging to the current user."""
+
+    model = Task
+    template_name = "crm/task_list.html"
+    context_object_name = "tasks"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.select_related("project", "project__client", "owner", "assigned_to").order_by(
+            "status",
+            "-priority",
+            "due_date",
+        )
+
+class TaskCreateView(LoginRequiredMixin, CreateView):
+    """Create a new task for a given project."""
+
+    model = Task
+    template_name = "crm/task_form.html"
+    fields = ["title", "description", "assigned_to", "status", "priority", "due_date"]
+
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(
+            Project,
+            pk=self.kwargs["project_pk"],
+            owner=request.user,
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        form.instance.project = self.project
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["project"] = self.project
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("crm:project_detail", kwargs={"pk": self.project.pk})

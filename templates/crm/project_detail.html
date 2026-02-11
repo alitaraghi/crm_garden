@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} | CRM Garden{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="h3 mb-0">{{ project.name }}</h1>
+      <p class="text-muted mb-0">
+        Client:
+        <a href="{% url 'crm:client_detail' project.client.pk %}">
+          {{ project.client.name }}
+        </a>
+      </p>
+    </div>
+    <div>
+      <a
+        href="{% url 'crm:project_update' project.pk %}"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        Edit
+      </a>
+      <a
+        href="{% url 'crm:project_delete' project.pk %}"
+        class="btn btn-sm btn-outline-danger"
+      >
+        Delete
+      </a>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <p><strong>Status:</strong> {{ project.get_status_display }}</p>
+      <p><strong>Start date:</strong> {{ project.start_date|date:"Y-m-d"|default:"-" }}</p>
+      <p><strong>Due date:</strong> {{ project.due_date|date:"Y-m-d"|default:"-" }}</p>
+      <p><strong>Description:</strong><br />{{ project.description|linebreaksbr|default:"-" }}</p>
+      <p class="text-muted small mb-0">
+        Created: {{ project.created_at|date:"Y-m-d H:i" }} |
+        Updated: {{ project.updated_at|date:"Y-m-d H:i" }}
+      </p>
+    </div>
+  </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="h5 mb-0">Tasks</h2>
+    <a
+      href="{% url 'crm:task_create_for_project' project_pk=project.pk %}"
+      class="btn btn-sm btn-primary"
+    >
+      Add task
+    </a>
+  </div>
+
+  {% if project.tasks.exists %}
+    <div class="table-responsive">
+      <table class="table table-sm table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Assigned to</th>
+            <th>Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in project.tasks.all %}
+            <tr>
+              <td>{{ task.title }}</td>
+              <td>{{ task.get_status_display }}</td>
+              <td>{{ task.get_priority_display }}</td>
+              <td>{{ task.assigned_to|default:"-" }}</td>
+              <td>{{ task.due_date|date:"Y-m-d"|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-muted">No tasks for this project yet.</p>
+  {% endif %}
+
+{% endblock %}

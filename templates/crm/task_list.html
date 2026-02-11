@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks | CRM Garden{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Tasks</h1>
+  </div>
+
+  {% if tasks %}
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Project</th>
+            <th>Client</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Assigned to</th>
+            <th>Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+            <tr>
+              <td>{{ task.title }}</td>
+              <td>
+                <a href="{% url 'crm:project_detail' task.project.pk %}">
+                  {{ task.project.name }}
+                </a>
+              </td>
+              <td>{{ task.project.client.name }}</td>
+              <td>{{ task.get_status_display }}</td>
+              <td>{{ task.get_priority_display }}</td>
+              <td>{{ task.assigned_to|default:"-" }}</td>
+              <td>{{ task.due_date|date:"Y-m-d"|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>No tasks yet.</p>
+  {% endif %}
+{% endblock %}
