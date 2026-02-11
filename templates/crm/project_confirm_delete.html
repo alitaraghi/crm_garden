@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Delete {{ project.name }} | CRM Garden{% endblock %}
+
+{% block content %}
+  <h1 class="h3 mb-3">Delete project</h1>
+
+  <div class="alert alert-warning">
+    <p class="mb-0">
+      Are you sure you want to delete
+      <strong>{{ project.name }}</strong>?
+      This action cannot be undone.
+    </p>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <a href="{% url 'crm:project_detail' project.pk %}" class="btn btn-secondary">
+      Cancel
+    </a>
+    <button type="submit" class="btn btn-danger">Delete</button>
+  </form>
+{% endblock %}

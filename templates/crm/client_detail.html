@@ -60,7 +60,11 @@
           <tbody>
             {% for project in client.projects.all %}
               <tr>
-                <td>{{ project.name }}</td>
+                <td>
+                  <a href="{% url 'crm:project_detail' project.pk %}">
+                    {{ project.name }}
+                  </a>
+                </td>
                 <td>{{ project.get_status_display }}</td>
                 <td>{{ project.start_date|date:"Y-m-d"|default:"-" }}</td>
                 <td>{{ project.due_date|date:"Y-m-d"|default:"-" }}</td>
