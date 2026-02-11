@@ -92,6 +92,9 @@ class Project(TimeStampedModel):
     )
     start_date = models.DateField(null=True, blank=True)
     due_date = models.DateField(null=True, blank=True)
+    def can_be_deleted(self) -> bool:
+        """Return whether this project is allowed to be deleted."""
+        return self.status not in {self.STATUS_COMPLETED, self.STATUS_CANCELLED}
 
     class Meta:
         ordering = ["-created_at"]
@@ -159,6 +162,13 @@ class Task(TimeStampedModel):
         default=PRIORITY_MEDIUM,
     )
     due_date = models.DateField(null=True, blank=True)
+    def is_overdue(self) -> bool:
+        """Return True if the task is overdue and not done."""
+        if not self.due_date:
+            return False
+        from datetime import date
+
+        return self.due_date < date.today() and self.status != self.STATUS_DONE
 
     class Meta:
         ordering = ["status", "priority", "due_date"]

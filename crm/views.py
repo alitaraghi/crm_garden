@@ -1,10 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from .models import Client, Project, Task
 from django.db.models import Count
 from datetime import date
+from django.contrib import messages
 
 
 class ClientListView(LoginRequiredMixin, ListView):
@@ -207,6 +208,17 @@ class ProjectDeleteView(OwnerQuerysetMixin, DeleteView):
     model = Project
     template_name = "crm/project_confirm_delete.html"
     success_url = reverse_lazy("crm:project_list")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.can_be_deleted():
+            messages.warning(
+                request,
+                "Completed or cancelled projects cannot be deleted.",
+            )
+            return redirect("crm:project_detail", pk=self.object.pk)
+        return super().dispatch(request, *args, **kwargs)
+
 
 class TaskListView(OwnerQuerysetMixin, ListView):
     """List all tasks belonging to the current user, with simple filters."""

@@ -67,9 +67,9 @@
             <th></th>
           </tr>
         </thead>
-        <tbody>
+                <tbody>
           {% for task in tasks %}
-            <tr>
+            <tr class="{% if task.is_overdue %}table-danger{% endif %}">
               <td>
                 <a href="{% url 'crm:task_detail' task.pk %}">
                   {{ task.title }}
@@ -81,7 +81,13 @@
                 </a>
               </td>
               <td>{{ task.project.client.name }}</td>
-              <td>{{ task.get_status_display }}</td>
+              <td>
+                {{ task.get_status_display }}
+                {% if task.is_overdue %}
+                  <span class="badge bg-danger ms-1">Overdue</span>
+                {% endif %}
+              </td>
+
               <td>{{ task.get_priority_display }}</td>
               <td>{{ task.assigned_to|default:"-" }}</td>
               <td>{{ task.due_date|date:"Y-m-d"|default:"-" }}</td>

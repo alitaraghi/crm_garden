@@ -20,12 +20,18 @@
       >
         Edit
       </a>
-      <a
-        href="{% url 'crm:project_delete' project.pk %}"
-        class="btn btn-sm btn-outline-danger"
-      >
-        Delete
-      </a>
+      {% if project.can_be_deleted %}
+        <a
+          href="{% url 'crm:project_delete' project.pk %}"
+          class="btn btn-sm btn-outline-danger"
+        >
+          Delete
+        </a>
+      {% else %}
+        <button class="btn btn-sm btn-outline-danger" disabled>
+          Delete (locked)
+        </button>
+      {% endif %}
     </div>
   </div>
 
@@ -42,7 +48,7 @@
     </div>
   </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-2">
+  <div class="d-flex justify-content-between align-items-center mb-2">
     <h2 class="h5 mb-0">Tasks</h2>
     <a
       href="{% url 'crm:task_create_for_project' project_pk=project.pk %}"
@@ -66,14 +72,18 @@
         </thead>
         <tbody>
           {% for task in project.tasks.all %}
-            <tr>
+            <tr class="{% if task.is_overdue %}table-danger{% endif %}">
               <td>
-  <a href="{% url 'crm:task_detail' task.pk %}">
-    {{ task.title }}
-  </a>
-</td>
-
-              <td>{{ task.get_status_display }}</td>
+                <a href="{% url 'crm:task_detail' task.pk %}">
+                  {{ task.title }}
+                </a>
+              </td>
+              <td>
+                {{ task.get_status_display }}
+                {% if task.is_overdue %}
+                  <span class="badge bg-danger ms-1">Overdue</span>
+                {% endif %}
+              </td>
               <td>{{ task.get_priority_display }}</td>
               <td>{{ task.assigned_to|default:"-" }}</td>
               <td>{{ task.due_date|date:"Y-m-d"|default:"-" }}</td>
@@ -85,5 +95,4 @@
   {% else %}
     <p class="text-muted">No tasks for this project yet.</p>
   {% endif %}
-
 {% endblock %}
