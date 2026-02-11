@@ -176,3 +176,30 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy("crm:project_detail", kwargs={"pk": self.project.pk})
+
+class TaskDetailView(OwnerQuerysetMixin, DetailView):
+    """Show details for a single task."""
+
+    model = Task
+    template_name = "crm/task_detail.html"
+    context_object_name = "task"
+
+
+class TaskUpdateView(OwnerQuerysetMixin, UpdateView):
+    """Update an existing task."""
+
+    model = Task
+    template_name = "crm/task_form.html"
+    context_object_name = "task"
+    fields = ["title", "description", "assigned_to", "status", "priority", "due_date"]
+
+    def get_success_url(self):
+        return reverse_lazy("crm:task_detail", kwargs={"pk": self.object.pk})
+
+
+class TaskDeleteView(OwnerQuerysetMixin, DeleteView):
+    """Delete an existing task."""
+
+    model = Task
+    template_name = "crm/task_confirm_delete.html"
+    success_url = reverse_lazy("crm:task_list")

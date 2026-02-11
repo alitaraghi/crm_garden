@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ task.title }} | CRM Garden{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="h3 mb-0">{{ task.title }}</h1>
+      <p class="text-muted mb-0">
+        Project:
+        <a href="{% url 'crm:project_detail' task.project.pk %}">
+          {{ task.project.name }}
+        </a>
+        |
+        Client: {{ task.project.client.name }}
+      </p>
+    </div>
+    <div>
+      <a
+        href="{% url 'crm:task_update' task.pk %}"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        Edit
+      </a>
+      <a
+        href="{% url 'crm:task_delete' task.pk %}"
+        class="btn btn-sm btn-outline-danger"
+      >
+        Delete
+      </a>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <p><strong>Status:</strong> {{ task.get_status_display }}</p>
+      <p><strong>Priority:</strong> {{ task.get_priority_display }}</p>
+      <p><strong>Assigned to:</strong> {{ task.assigned_to|default:"-" }}</p>
+      <p><strong>Due date:</strong> {{ task.due_date|date:"Y-m-d"|default:"-" }}</p>
+      <p><strong>Description:</strong><br />{{ task.description|linebreaksbr|default:"-" }}</p>
+      <p class="text-muted small mb-0">
+        Created: {{ task.created_at|date:"Y-m-d H:i" }} |
+        Updated: {{ task.updated_at|date:"Y-m-d H:i" }}
+      </p>
+    </div>
+  </div>
+{% endblock %}

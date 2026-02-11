@@ -19,12 +19,17 @@
             <th>Priority</th>
             <th>Assigned to</th>
             <th>Due</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {% for task in tasks %}
             <tr>
-              <td>{{ task.title }}</td>
+              <td>
+                <a href="{% url 'crm:task_detail' task.pk %}">
+                  {{ task.title }}
+                </a>
+              </td>
               <td>
                 <a href="{% url 'crm:project_detail' task.project.pk %}">
                   {{ task.project.name }}
@@ -35,6 +40,14 @@
               <td>{{ task.get_priority_display }}</td>
               <td>{{ task.assigned_to|default:"-" }}</td>
               <td>{{ task.due_date|date:"Y-m-d"|default:"-" }}</td>
+              <td class="text-end">
+                <a
+                  href="{% url 'crm:task_update' task.pk %}"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  Edit
+                </a>
+              </td>
             </tr>
           {% endfor %}
         </tbody>
