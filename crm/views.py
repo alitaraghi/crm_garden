@@ -6,6 +6,8 @@ from .models import Client, Project, Task
 from django.db.models import Count
 from datetime import date
 from django.contrib import messages
+from .forms import ProjectForm, TaskForm
+
 
 
 class ClientListView(LoginRequiredMixin, ListView):
@@ -158,8 +160,8 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     """Create a new project for a given client."""
 
     model = Project
+    form_class = ProjectForm
     template_name = "crm/project_form.html"
-    fields = ["name", "description", "status", "start_date", "due_date"]
 
     def dispatch(self, request, *args, **kwargs):
         self.client = get_object_or_404(
@@ -181,7 +183,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy("crm:client_detail", kwargs={"pk": self.client.pk})
-    
+
 class ProjectDetailView(OwnerQuerysetMixin, DetailView):
     """Show details for a single project."""
 
@@ -194,9 +196,9 @@ class ProjectUpdateView(OwnerQuerysetMixin, UpdateView):
     """Update an existing project."""
 
     model = Project
+    form_class = ProjectForm
     template_name = "crm/project_form.html"
     context_object_name = "project"
-    fields = ["name", "description", "status", "start_date", "due_date"]
 
     def get_success_url(self):
         return reverse_lazy("crm:project_detail", kwargs={"pk": self.object.pk})
@@ -264,8 +266,8 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     """Create a new task for a given project."""
 
     model = Task
+    form_class = TaskForm
     template_name = "crm/task_form.html"
-    fields = ["title", "description", "assigned_to", "status", "priority", "due_date"]
 
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(
@@ -300,13 +302,12 @@ class TaskUpdateView(OwnerQuerysetMixin, UpdateView):
     """Update an existing task."""
 
     model = Task
+    form_class = TaskForm
     template_name = "crm/task_form.html"
     context_object_name = "task"
-    fields = ["title", "description", "assigned_to", "status", "priority", "due_date"]
 
     def get_success_url(self):
         return reverse_lazy("crm:task_detail", kwargs={"pk": self.object.pk})
-
 
 class TaskDeleteView(OwnerQuerysetMixin, DeleteView):
     """Delete an existing task."""

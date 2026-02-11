@@ -4,7 +4,11 @@
 
 {% block content %}
   <h1 class="h3 mb-3">
-    Add task for {{ project.name }}
+    {% if task %}
+      Edit task
+    {% else %}
+      Add task for {{ project.name }}
+    {% endif %}
   </h1>
 
   <form method="post" class="card card-body">
@@ -16,19 +20,7 @@
         <label class="form-label" for="{{ field.id_for_label }}">
           {{ field.label }}
         </label>
-
-        {% if field.name == "due_date" %}
-          <input
-            type="date"
-            name="{{ field.html_name }}"
-            id="{{ field.id_for_label }}"
-            value="{{ field.value|default_if_none:'' }}"
-            class="form-control"
-          />
-        {% else %}
-          {{ field }}
-        {% endif %}
-
+        {{ field }}
         {% if field.help_text %}
           <div class="form-text">{{ field.help_text }}</div>
         {% endif %}
@@ -39,7 +31,6 @@
     {% endfor %}
 
     <button type="submit" class="btn btn-primary">Save</button>
-
     {% if project %}
       <a href="{% url 'crm:project_detail' project.pk %}" class="btn btn-secondary">
         Cancel
