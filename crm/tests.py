@@ -117,3 +117,63 @@ class DashboardViewTests(BaseCRMTestCase):
         self.assertIn(self.task1, overdue_tasks)
         # task2 belongs to user2, should not appear
         self.assertNotIn(self.task2, overdue_tasks)
+from django.contrib import messages
+
+class ProjectDeleteViewTests(BaseCRMTestCase):
+    def test_cannot_delete_completed_project(self):
+        # Arrange: mark user1's project as completed
+        self.project1.status = Project.STATUS_COMPLETED
+        self.project1.save()
+
+        self.client.login(username="user1", password="testpass123")
+
+        url = reverse("crm:project_delete", kwargs={"pk": self.project1.pk})
+        response = self.client.get(url, follow=True)
+
+        # Should redirect to project detail (not actually delete)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "crm/project_detail.html")
+
+        # Project should still exist
+        self.assertTrue(Project.objects.filter(pk=self.project1.pk).exists())
+
+    def test_can_delete_non_completed_project(self):
+        # Ensure status is something deletable
+        self.project1.status = Project.STATUS_PLANNED
+        self.project1.save()
+
+        self.client.login(username="user1", password="testpass123")
+
+        url = reverse("crm:project_delete", kwargs={"pk": self.project1.pk})
+        response = self.client.post(url, follow=True)
+
+        # After successful delete, we should land on project list
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "crm/project_list.html")
+
+        # Project should be gone
+        self.assertFalse(Project.objects.filter(pk=self.project1.pk).exists())
+class TaskCreateViewTests(BaseCRMTestCase):
+    def test_task_create_sets_owner_and_project(self):
+        self.client.login(username="user1", password="testpass123")
+
+        url = reverse(
+            "crm:task_create_for_project",
+            kwargs={"project_pk": self.project1.pk},
+        )
+
+        data = {
+            "title": "New Task from view",
+            "description": "Test description",
+            "status": Task.STATUS_TODO,
+            "priority": Task.PRIORITY_MEDIUM,
+            "due_date": date.today(),
+        }
+
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        # Task should have been created
+        new_task = Task.objects.get(title="New Task from view")
+        self.assertEqual(new_task.owner, self.user1)
+        self.assertEqual(new_task.project, self.project1)
