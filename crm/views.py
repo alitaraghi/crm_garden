@@ -119,15 +119,38 @@ class ClientDeleteView(OwnerQuerysetMixin, DeleteView):
     success_url = reverse_lazy("crm:client_list")
 
 class ProjectListView(OwnerQuerysetMixin, ListView):
-    """List all projects belonging to the current user."""
+    """List all projects belonging to the current user, with simple filters."""
 
     model = Project
     template_name = "crm/project_list.html"
     context_object_name = "projects"
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.select_related("client", "owner").order_by("-created_at")
+        qs = (
+            super()
+            .get_queryset()
+            .select_related("client", "owner")
+            .order_by("-created_at")
+        )
+
+        status = self.request.GET.get("status")
+        client_id = self.request.GET.get("client")
+
+        if status:
+            qs = qs.filter(status=status)
+        if client_id:
+            qs = qs.filter(client_id=client_id)
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Clients filter dropdown
+        context["status_filter"] = self.request.GET.get("status", "")
+        context["client_filter"] = self.request.GET.get("client", "")
+        context["clients_for_filter"] = Client.objects.filter(owner=self.request.user)
+        context["project_status_choices"] = Project.STATUS_CHOICES
+        return context
 
 
 class ProjectCreateView(LoginRequiredMixin, CreateView):
@@ -186,19 +209,44 @@ class ProjectDeleteView(OwnerQuerysetMixin, DeleteView):
     success_url = reverse_lazy("crm:project_list")
 
 class TaskListView(OwnerQuerysetMixin, ListView):
-    """List all tasks belonging to the current user."""
+    """List all tasks belonging to the current user, with simple filters."""
 
     model = Task
     template_name = "crm/task_list.html"
     context_object_name = "tasks"
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.select_related("project", "project__client", "owner", "assigned_to").order_by(
-            "status",
-            "-priority",
-            "due_date",
+        qs = (
+            super()
+            .get_queryset()
+            .select_related("project", "project__client", "owner", "assigned_to")
+            .order_by("status", "-priority", "due_date")
         )
+
+        status = self.request.GET.get("status")
+        priority = self.request.GET.get("priority")
+        overdue_only = self.request.GET.get("overdue")  # "1" or None
+
+        if status:
+            qs = qs.filter(status=status)
+        if priority:
+            qs = qs.filter(priority=priority)
+        if overdue_only == "1":
+            from datetime import date
+
+            today = date.today()
+            qs = qs.filter(due_date__lte=today).exclude(status=Task.STATUS_DONE)
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["status_filter"] = self.request.GET.get("status", "")
+        context["priority_filter"] = self.request.GET.get("priority", "")
+        context["overdue_filter"] = self.request.GET.get("overdue", "")
+        context["task_status_choices"] = Task.STATUS_CHOICES
+        context["task_priority_choices"] = Task.PRIORITY_CHOICES
+        return context
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
     """Create a new task for a given project."""

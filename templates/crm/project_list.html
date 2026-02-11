@@ -7,6 +7,35 @@
     <h1 class="h3 mb-0">Projects</h1>
   </div>
 
+  <form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+      <label class="form-label" for="status">Status</label>
+      <select name="status" id="status" class="form-select">
+        <option value="">All</option>
+        {% for value, label in project_status_choices %}
+          <option value="{{ value }}" {% if value == status_filter %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" for="client">Client</label>
+      <select name="client" id="client" class="form-select">
+        <option value="">All</option>
+        {% for client in clients_for_filter %}
+          <option value="{{ client.id }}" {% if client.id|stringformat:"s" == client_filter %}selected{% endif %}>
+            {{ client.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary me-2">Filter</button>
+      <a href="{% url 'crm:project_list' %}" class="btn btn-outline-secondary">Clear</a>
+    </div>
+  </form>
+
   {% if projects %}
     <div class="table-responsive">
       <table class="table table-striped align-middle">
