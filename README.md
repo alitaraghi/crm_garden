@@ -36,6 +36,56 @@ Possible future enhancements:
 - Simple automation (e.g. marking projects as completed when all tasks are done).
 - Better onboarding and user management.
 
+## Design decisions & business rules
+
+### Data model and ownership
+
+Each core model (`Client`, `Project`, and `Task`) has an explicit `owner` field that points to the Django user model.  
+This makes it easy to enforce per-user data isolation in queries and views, so each user only sees and manages their own CRM data.
+
+Clients, projects, and tasks are linked in a simple hierarchy:
+
+- A user has many clients.
+- A client has many projects.
+- A project has many tasks.
+
+This structure is intentionally straightforward so that it clearly demonstrates relational modeling and query patterns in Django.
+
+### Status and priority
+
+Projects and tasks use explicit status and priority choices instead of free-text fields.  
+This keeps the data consistent and allows for simple filtering and reporting in list views and on the dashboard.
+
+Examples:
+
+- Project statuses: planned, in progress, on hold, completed, cancelled.
+- Task statuses: to do, in progress, done, blocked.
+- Task priorities: low, medium, high.
+
+### Business rules
+
+Some small but realistic business rules are implemented to make the CRM behave more like a real-world tool:
+
+- Projects with a status of `completed` or `cancelled` cannot be deleted from the UI.  
+  This prevents accidentally deleting historical records for finished work.
+
+- Overdue tasks (tasks with a due date in the past and not marked as done) are visually highlighted in tables.  
+  This helps the user quickly see which items need attention.
+
+These rules are intentionally simple but show how domain logic can be enforced both in the view layer and in the templates.
+
+### Testing
+
+The project includes a small but focused test suite:
+
+- Ownership tests for list views (clients, projects, tasks) to ensure a user only sees their own data.
+- Dashboard tests to verify that counts and overdue tasks are calculated from the correct queryset.
+- View tests for project deletion rules and task creation, confirming that:
+  - Protected projects are not deleted.
+  - Newly created tasks are automatically linked to the correct project and owner.
+
+The goal is to demonstrate a pragmatic approach to testing: covering critical paths and business rules rather than aiming for 100% cove
+
 ## Tech Stack
 
 - Python
