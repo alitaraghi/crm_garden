@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Login | CRM Garden{% endblock %}
+
+{% block content %}
+  <h1 class="h3 mb-3">Login</h1>
+
+  {% if form.errors %}
+    <div class="alert alert-danger">
+      Please check your username and password and try again.
+    </div>
+  {% endif %}
+
+  <form method="post" class="card card-body">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+      {{ form.username }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+      {{ form.password }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+  </form>
+{% endblock %}

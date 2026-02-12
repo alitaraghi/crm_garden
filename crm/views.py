@@ -7,6 +7,12 @@ from django.db.models import Count
 from datetime import date
 from django.contrib import messages
 from .forms import ProjectForm, TaskForm
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+def simple_logout(request):
+    logout(request)
+    return redirect("crm:dashboard")
 
 
 
