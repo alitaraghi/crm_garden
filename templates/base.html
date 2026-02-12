@@ -13,33 +13,72 @@
     />
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-      <div class="container">
-        <a class="navbar-brand" href="{% url 'crm:dashboard' %}">CRM Garden</a>
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav ms-auto">
-            
-            {% if user.is_authenticated %}
-              <li class="nav-item">
-                <span class="navbar-text me-3">
-                  Logged in as {{ user.username }}
-                </span>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'admin:logout' %}">Logout</a>  
-              </li>
-            {% else %}
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'admin:login' %}">Login</a>
-              </li>
-            {% endif %}
-          </ul>
-        </div>
-      </div>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'crm:dashboard' %}">CRM Garden</a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#mainNavbar"
+      aria-controls="mainNavbar"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'crm:dashboard' %}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'crm:client_list' %}">Clients</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'crm:project_list' %}">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'crm:task_list' %}">Tasks</a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <span class="navbar-text me-3">
+              Logged in as {{ user.username }}
+            </span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin:logout' %}">Logout</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin:login' %}">Login</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
 
     <main class="container">
+      {% if messages %}
+        <div class="mt-2">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} mb-2" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       {% block content %}{% endblock %}
     </main>
+
   </body>
 </html>
